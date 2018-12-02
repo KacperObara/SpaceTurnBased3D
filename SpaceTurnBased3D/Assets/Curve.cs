@@ -5,10 +5,11 @@ using UnityEngine;
 public class Curve : MonoBehaviour {
 
     public LineRenderer lineRenderer;
-    public List<Transform> points;
+    //public List<Transform> points;
 
     ///
-    public Transform ship;
+    public Selection Selection;
+
     public bool moving = false;
     public int activePoint = 0;
     public float radius = 1;
@@ -20,36 +21,38 @@ public class Curve : MonoBehaviour {
     private void Start()
     {
         lineRenderer.positionCount = numPoints;
-       
     }
 
     private void Update()
     {
-        DrawQuadraticCurve();
-        if (Input.GetKeyDown(KeyCode.Alpha1) && moving == false)
+        if (Selection.Ship != null)
         {
-            moving = true;
-        }
-
-        if (moving == true)
-        {
-            ship.transform.position = Vector3.MoveTowards(ship.transform.position, positions[activePoint], Time.deltaTime * speed);
-            if (activePoint + 5 < positions.Length)
+            DrawQuadraticCurve();
+            if (Input.GetKeyDown(KeyCode.Alpha1) && moving == false)
             {
-                var rotation = Quaternion.LookRotation(positions[activePoint + 5] - ship.transform.position);
-                ship.transform.rotation = Quaternion.Slerp(ship.transform.rotation, rotation, Time.deltaTime * 5);
+                moving = true;
             }
-            
 
-            if (Vector3.Distance(positions[activePoint], ship.transform.position) < radius)
+            if (moving == true)
             {
-                activePoint++;
-            }
-            if (activePoint == positions.Length)
-            {
-                moving = false;
-                //var rotation = Quaternion.LookRotation(positions[49] - positions[48]);
-                //ship.transform.rotation = Quaternion.Slerp(ship.transform.rotation, rotation, Time.deltaTime * 5);
+                Selection.Ship.transform.position = Vector3.MoveTowards(Selection.Ship.transform.position, positions[activePoint], Time.deltaTime * speed);
+                if (activePoint + 5 < positions.Length)
+                {
+                    var rotation = Quaternion.LookRotation(positions[activePoint + 5] - Selection.Ship.transform.position);
+                    Selection.Ship.transform.rotation = Quaternion.Slerp(Selection.Ship.transform.rotation, rotation, Time.deltaTime * 5);
+                }
+
+
+                if (Vector3.Distance(positions[activePoint], Selection.Ship.transform.position) < radius)
+                {
+                    activePoint++;
+                }
+                if (activePoint == positions.Length)
+                {
+                    moving = false;
+                    //var rotation = Quaternion.LookRotation(positions[49] - positions[48]);
+                    //ship.transform.rotation = Quaternion.Slerp(ship.transform.rotation, rotation, Time.deltaTime * 5);
+                }
             }
         }
     }
@@ -59,7 +62,7 @@ public class Curve : MonoBehaviour {
         for (int i = 1; i < numPoints + 1; ++i)
         {
             float t = i / (float)numPoints;
-            positions[i - 1] = CalculateQuadraticBezierPoint(t, points[0].position, points[1].position, points[2].position);
+            positions[i - 1] = CalculateQuadraticBezierPoint(t, Selection.CurvePoints[0], Selection.CurvePoints[1], Selection.CurvePoints[2]);
         }
         lineRenderer.SetPositions(positions);
     }

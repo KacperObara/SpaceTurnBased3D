@@ -6,8 +6,9 @@ public class Mouse : MonoBehaviour {
 
     Camera cam;
     public Selection Selection;
-    public Vector3 mouseOffset;
-    public Vector3 mouseStartPos;
+
+    public float offsetY;
+    public float defaultY;
 
 	// Use this for initialization
 	void Start () {
@@ -17,11 +18,12 @@ public class Mouse : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (Selection.Ship != null)
-        {
-            mouseOffset = Input.mousePosition - mouseStartPos;
-            mouseOffset = new Vector3(mouseOffset.x, 0, mouseOffset.y);
-        }
+        //if (Selection.Ship != null)
+        //{
+        //    mouseOffset = Input.mousePosition - mouseStartPos;
+        //    mouseOffset = new Vector3(mouseOffset.x, 0, mouseOffset.y);
+        //}
+        offsetY += Input.GetAxis("Mouse ScrollWheel") * 3;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -35,7 +37,10 @@ public class Mouse : MonoBehaviour {
                     Selection.Ship = hit.transform.GetComponent<Ship>();
                     Selection.CurvePoints[0] = Selection.Ship.transform.position;
                     Selection.CurvePoints[1] = Selection.Ship.transform.forward * 25;
-                    mouseStartPos = Input.mousePosition;
+                }
+                else
+                {
+                    Selection.Ship = null;
                 }
             }
             else
@@ -48,7 +53,21 @@ public class Mouse : MonoBehaviour {
 
         if (Selection.Ship != null)
         {
-            Selection.CurvePoints[2] = mouseOffset;
+            //Selection.CurvePoints[2] = mouseOffset;
+           
+
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.transform.tag == "CurveSpace")
+                {
+                    Selection.CurvePoints[2] = hit.point;
+                    defaultY = hit.point.y;
+                }
+            }
         }
+
+        Selection.CurvePoints[2].y = defaultY + offsetY;
     }
 }

@@ -6,5 +6,4 @@ using UnityEngine;
 public class Selection : ScriptableObject {
 
     public Ship Ship;
-    public Vector3[] CurvePoints = new Vector3[3];
 }

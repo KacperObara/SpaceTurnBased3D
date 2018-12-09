@@ -18,11 +18,6 @@ public class Mouse : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        //if (Selection.Ship != null)
-        //{
-        //    mouseOffset = Input.mousePosition - mouseStartPos;
-        //    mouseOffset = new Vector3(mouseOffset.x, 0, mouseOffset.y);
-        //}
         offsetY += Input.GetAxis("Mouse ScrollWheel") * 3;
 
         if (Input.GetMouseButtonDown(0))
@@ -35,8 +30,8 @@ public class Mouse : MonoBehaviour {
                 {
                     Debug.Log("Clicked on: " + hit.transform.name);
                     Selection.Ship = hit.transform.GetComponent<Ship>();
-                    Selection.CurvePoints[0] = Selection.Ship.transform.position;
-                    Selection.CurvePoints[1] = Selection.Ship.transform.forward * 25;
+                    Selection.Ship.ChosenCurvePoints[0] = Selection.Ship.transform.position;
+                    Selection.Ship.ChosenCurvePoints[1] = Selection.Ship.transform.Find("Collider").transform.position;
                 }
                 else
                 {
@@ -53,21 +48,19 @@ public class Mouse : MonoBehaviour {
 
         if (Selection.Ship != null)
         {
-            //Selection.CurvePoints[2] = mouseOffset;
-           
-
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.transform.tag == "CurveSpace")
+                if (hit.transform.tag == "CurveSpace" && hit.transform.parent == Selection.Ship.transform)
                 {
-                    Selection.CurvePoints[2] = hit.point;
+                    Selection.Ship.ChosenCurvePoints[2] = hit.point;
                     defaultY = hit.point.y;
                 }
             }
-        }
 
-        Selection.CurvePoints[2].y = defaultY + offsetY;
+
+            Selection.Ship.ChosenCurvePoints[2].y = defaultY + offsetY;
+        }
     }
 }
